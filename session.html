@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Game</title>
+</head>
+<body>
+  <ul id="messages"></ul>
+  <form id="form" onsubmit="">
+    <div>Enter game id:</div>
+    <label>Game ID</label>
+    <input id="input" autocomplete="off" />
+    <button>Send</button>
+  </form>
+  <script>
+    function enterGameId(event, form) {
+      console.log(form);
+      event.preventDefault()
+    }
+  </script>
+</body>
+</html>
