@@ -1,7 +1,8 @@
 import React from 'react';
 import './Card.css';
+import { CardComponentProps } from '../types';
 
-const Card = ({ card, onClick, className = '', disabled = false }) => {
+const Card = ({ card, onClick, className = '', disabled = false }: CardComponentProps) => {
   if (!card) return null;
   
   const { suit, value } = card;
@@ -38,7 +39,7 @@ const Card = ({ card, onClick, className = '', disabled = false }) => {
 };
 
 // Helper function to get suit symbol
-const getSuitSymbol = (suit, color, size = 14) => {
+const getSuitSymbol = (suit: string, color: string, size: number = 14) => {
   let symbol = '';
   
   switch (suit) {

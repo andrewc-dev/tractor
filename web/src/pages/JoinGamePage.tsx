@@ -18,6 +18,12 @@ const JoinGamePage = () => {
   const [loading, setLoading] = useState(false);
   const [gameIdError, setGameIdError] = useState('');
   const [playerNameError, setPlayerNameError] = useState('');
+  const [gameInfo, setGameInfo] = useState<{
+    gameType?: string;
+    roomName?: string;
+    playerCount?: number;
+    maxPlayers?: number;
+  } | null>(null);
   
   const navigate = useNavigate();
   const query = useQuery();
@@ -37,11 +43,58 @@ const JoinGamePage = () => {
     
     if (queryGameId) {
       setGameId(queryGameId);
+      // If there's a game ID in the URL, try to fetch game info
+      fetchGameInfo(queryGameId);
     }
   }, [queryGameId]);
+
+  // Fetch game information
+  const fetchGameInfo = async (id: string) => {
+    try {
+      const statusResponse = await getGameStatus(id);
+      if (statusResponse.success && statusResponse.game) {
+        setGameInfo({
+          gameType: statusResponse.game.gameType,
+          roomName: statusResponse.game.roomName,
+          playerCount: statusResponse.game.playerCount,
+          maxPlayers: statusResponse.game.maxPlayers
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching game info:', error);
+    }
+  };
+  
+  // When game ID changes and it's not from a URL parameter, check if the game exists
+  const handleGameIdChange = async (value: string) => {
+    setGameId(value);
+    
+    if (value.length === 6) {
+      try {
+        const statusResponse = await getGameStatus(value);
+        if (statusResponse.success && statusResponse.game) {
+          setGameInfo({
+            gameType: statusResponse.game.gameType,
+            roomName: statusResponse.game.roomName,
+            playerCount: statusResponse.game.playerCount,
+            maxPlayers: statusResponse.game.maxPlayers
+          });
+          setGameIdError('');
+        } else {
+          setGameInfo(null);
+          setGameIdError('Game not found');
+        }
+      } catch (error) {
+        setGameInfo(null);
+        setGameIdError('Game not found or has expired');
+      }
+    } else {
+      setGameInfo(null);
+    }
+  };
   
   // Validate form fields
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     let isValid = true;
     
     if (!gameId.trim()) {
@@ -62,7 +115,7 @@ const JoinGamePage = () => {
   };
   
   // Handle joining a game
-  const handleJoinGame = async (e) => {
+  const handleJoinGame = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     
     if (!validateForm()) return;
@@ -70,13 +123,14 @@ const JoinGamePage = () => {
     try {
       setLoading(true);
       
-      // First, check if game exists
-      try {
-        await getGameStatus(gameId);
-      } catch (error) {
-        setGameIdError('Game not found or has expired');
-        setLoading(false);
-        return;
+      // First, check if game exists if not already fetched
+      if (!gameInfo) {
+        const statusResponse = await getGameStatus(gameId);
+        if (!statusResponse.success) {
+          setGameIdError('Game not found or has expired');
+          setLoading(false);
+          return;
+        }
       }
       
       // Get or generate player ID
@@ -92,15 +146,17 @@ const JoinGamePage = () => {
       // Join the game
       const response = await joinGame(gameId, playerId, playerName);
       
-      if (response.success) {
-        // Navigate to waiting room
-        navigate(`/waiting/${gameId}`, {
+      if (response.success && response.game) {
+        // Navigate to game room
+        navigate(`/game/${gameId}`, {
           state: {
             playerId,
             playerName,
             playerCount: response.game.playerCount,
             maxPlayers: response.game.maxPlayers,
-            status: response.game.status
+            status: response.game.status,
+            gameType: response.game.gameType,
+            roomName: response.game.roomName
           }
         });
       } else {
@@ -108,8 +164,8 @@ const JoinGamePage = () => {
       }
     } catch (error) {
       console.error('Error joining game:', error);
-      if (error.response?.status === 400) {
-        alert(error.response.data.message || 'Game room is full');
+      if ((error as any).response?.status === 400) {
+        alert((error as any).response.data.message || 'Game room is full');
       } else {
         alert('Failed to join game. Please try again.');
       }
@@ -133,7 +189,7 @@ const JoinGamePage = () => {
             <Input
               label="Game ID"
               value={gameId}
-              onChange={setGameId}
+              onChange={handleGameIdChange}
               placeholder="Enter game ID"
               error={gameIdError}
               disabled={fromCreate}
@@ -141,6 +197,18 @@ const JoinGamePage = () => {
               autoComplete="off"
               className="form-group"
             />
+            
+            {gameInfo && (
+              <div className="game-info-panel">
+                <h3>{gameInfo.roomName ? gameInfo.roomName : 'Game Information'}</h3>
+                <p className="game-type">
+                  <strong>Game Type:</strong> {gameInfo.gameType || 'Tractor'}
+                </p>
+                <p className="player-info">
+                  <strong>Players:</strong> {gameInfo.playerCount || 0} / {gameInfo.maxPlayers || 4}
+                </p>
+              </div>
+            )}
             
             <Input
               label="Your Name"

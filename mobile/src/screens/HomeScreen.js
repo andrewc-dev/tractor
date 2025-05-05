@@ -61,7 +61,7 @@ const HomeScreen = ({ navigation }) => {
       
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>Card Game</Text>
+          <Text style={styles.title}>Tractor Card Game</Text>
           <Text style={styles.subtitle}>Multiplayer Card Game Experience</Text>
         </View>
         
@@ -83,7 +83,7 @@ const HomeScreen = ({ navigation }) => {
       </View>
       
       <View style={styles.footer}>
-        <Text style={styles.footerText}>© 2023 Card Game</Text>
+        <Text style={styles.footerText}>© 2025 Tractor Card Game</Text>
       </View>
     </SafeAreaView>
   );

@@ -1,9 +1,10 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
+import { ApiResponse, Game } from '../types';
 
 // Server URL - change this to match your server's address
 const API_URL = 'http://localhost:3000';
 
-const api = axios.create({
+const api: AxiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 5000,
   headers: {
@@ -12,10 +13,17 @@ const api = axios.create({
   }
 });
 
+// Game settings interface
+export interface GameSettings {
+  gameType: 'Tractor' | 'Red Heart Five' | 'Throwing Eggs';
+  playerCount: 4 | 6;
+  roomName?: string;
+}
+
 // Game related API calls
-export const createGame = async () => {
+export const createGame = async (settings: GameSettings): Promise<ApiResponse<{ gameId: string; link: string }>> => {
   try {
-    const response = await api.post('/api/game');
+    const response = await api.post('/api/game', settings);
     return response.data;
   } catch (error) {
     console.error('Error creating game:', error);
@@ -23,7 +31,7 @@ export const createGame = async () => {
   }
 };
 
-export const getGameStatus = async (gameId) => {
+export const getGameStatus = async (gameId: string): Promise<ApiResponse<{ game: Game }>> => {
   try {
     const response = await api.get(`/api/game/${gameId}`);
     return response.data;
@@ -33,7 +41,7 @@ export const getGameStatus = async (gameId) => {
   }
 };
 
-export const joinGame = async (gameId, playerId, playerName) => {
+export const joinGame = async (gameId: string, playerId: string, playerName: string): Promise<ApiResponse<{ game: Game }>> => {
   try {
     const response = await api.post(`/api/game/${gameId}/join`, {
       playerId,
@@ -46,7 +54,7 @@ export const joinGame = async (gameId, playerId, playerName) => {
   }
 };
 
-export const dealCards = async (gameId) => {
+export const dealCards = async (gameId: string): Promise<ApiResponse<{ game: Game }>> => {
   try {
     const response = await api.post(`/api/game/${gameId}/deal`);
     return response.data;

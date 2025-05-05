@@ -13,6 +13,8 @@
   "author": "Andrew Cai",
   "license": "ISC",
   "dependencies": {
+    "@sequelize/core": "^7.0.0-alpha.37",
+    "@sequelize/sqlite3": "^7.0.0-alpha.46",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "redis": "^4.6.10",

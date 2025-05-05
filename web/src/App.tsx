@@ -6,21 +6,20 @@ import './App.css';
 import HomePage from './pages/HomePage';
 import JoinGamePage from './pages/JoinGamePage';
 import WaitingRoomPage from './pages/WaitingRoomPage';
-import GamePage from './pages/GamePage';
+import GameRoomPage from './pages/GameRoomPage';
 
-function App() {
+const App = () => {
   return (
     <Router>
       <div className="App">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/join" element={<JoinGamePage />} />
-          <Route path="/waiting/:gameId" element={<WaitingRoomPage />} />
-          <Route path="/game/:gameId" element={<GamePage />} />
+          <Route path="/game/:gameId" element={<GameRoomPage />} />
         </Routes>
       </div>
     </Router>
   );
-}
+};
 
-export default App;
+export default App; 

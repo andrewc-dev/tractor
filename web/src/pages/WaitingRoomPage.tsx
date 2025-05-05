@@ -12,9 +12,23 @@ import {
 } from '../services/socket';
 import './WaitingRoomPage.css';
 
+interface LocationState {
+  playerId: string;
+  playerName: string;
+  playerCount?: number;
+  maxPlayers?: number;
+  status?: string;
+  gameType?: string;
+  roomName?: string;
+}
+
+interface RouteParams {
+  gameId: string;
+}
+
 const WaitingRoomPage = () => {
   const navigate = useNavigate();
-  const { gameId } = useParams();
+  const { gameId } = useParams() as RouteParams;
   const location = useLocation();
   
   // Get state from location or use defaults
@@ -23,8 +37,10 @@ const WaitingRoomPage = () => {
     playerName = '', 
     playerCount: initialPlayerCount = 1,
     maxPlayers: initialMaxPlayers = 4,
-    status: initialStatus = 'waiting'
-  } = location.state || {};
+    status: initialStatus = 'waiting',
+    gameType = 'Tractor',
+    roomName = ''
+  } = (location.state as LocationState) || {};
   
   const [playerCount, setPlayerCount] = useState(initialPlayerCount);
   const [maxPlayers] = useState(initialMaxPlayers);
@@ -45,7 +61,9 @@ const WaitingRoomPage = () => {
     const setupSocketConnection = async () => {
       try {
         await initializeSocket();
-        await joinGameRoom(gameId, playerId, playerName);
+        if (gameId) {
+          await joinGameRoom(gameId, playerId, playerName);
+        }
         
         listenForPlayerJoined((data) => {
           setPlayerCount(data.playerCount);
@@ -54,11 +72,13 @@ const WaitingRoomPage = () => {
         
         listenForGameReady((data) => {
           setStatus(data.status);
-          if (data.status === 'ready') {
+          if (data.status === 'ready' && gameId) {
             navigate(`/game/${gameId}`, {
               state: {
                 playerId,
-                playerName
+                playerName,
+                gameType,
+                roomName
               }
             });
           }
@@ -68,7 +88,7 @@ const WaitingRoomPage = () => {
       }
     };
     
-    if (playerId && playerName) {
+    if (playerId && playerName && gameId) {
       setupSocketConnection();
     }
     
@@ -76,17 +96,17 @@ const WaitingRoomPage = () => {
     return () => {
       disconnectSocket();
     };
-  }, [gameId, playerId, playerName, navigate]);
+  }, [gameId, playerId, playerName, navigate, gameType, roomName]);
   
   // Polling as backup if sockets fail
   useEffect(() => {
-    let interval;
+    let interval: number | undefined;
     
-    if (isPolling && playerId && playerName) {
-      interval = setInterval(async () => {
+    if (isPolling && playerId && playerName && gameId) {
+      interval = window.setInterval(async () => {
         try {
           const response = await getGameStatus(gameId);
-          if (response.success) {
+          if (response.success && response.game) {
             setPlayerCount(response.game.playerCount);
             setStatus(response.game.status);
             
@@ -95,7 +115,9 @@ const WaitingRoomPage = () => {
               navigate(`/game/${gameId}`, {
                 state: {
                   playerId,
-                  playerName
+                  playerName,
+                  gameType: response.game.gameType || gameType,
+                  roomName: response.game.roomName || roomName
                 }
               });
             }
@@ -106,11 +128,15 @@ const WaitingRoomPage = () => {
       }, 5000);
     }
     
-    return () => clearInterval(interval);
-  }, [gameId, playerId, playerName, navigate, isPolling]);
+    return () => {
+      if (interval) window.clearInterval(interval);
+    };
+  }, [gameId, playerId, playerName, navigate, isPolling, gameType, roomName]);
   
   // Handle sharing the game link
   const handleShareGame = () => {
+    if (!gameId) return;
+    
     const gameLink = `${window.location.origin}/join?gameId=${gameId}`;
     
     if (navigator.share) {
@@ -128,7 +154,7 @@ const WaitingRoomPage = () => {
   };
   
   // Helper function to copy link to clipboard
-  const copyToClipboard = (text) => {
+  const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
       .then(() => alert('Game link copied to clipboard!'))
       .catch(err => console.error('Failed to copy:', err));
@@ -141,6 +167,10 @@ const WaitingRoomPage = () => {
     }
   };
 
+  if (!gameId) {
+    return <div>Invalid game ID</div>;
+  }
+
   return (
     <div className="page waiting-page">
       <div className="container">
@@ -152,8 +182,11 @@ const WaitingRoomPage = () => {
         </div>
         
         <div className="card-container game-info">
-          <h2>Game ID</h2>
+          <h2>{roomName || `Game Room`}</h2>
           <div className="game-id">{gameId}</div>
+          <div className="game-type-label">
+            Game Type: <span className="game-type-value">{gameType}</span>
+          </div>
           <Button 
             title="Share Invite" 
             onClick={handleShareGame}

@@ -1,7 +1,8 @@
 import React from 'react';
 import './LoadingSpinner.css';
+import { LoadingSpinnerProps } from '../types';
 
-const LoadingSpinner = ({ message = 'Loading...' }) => {
+const LoadingSpinner = ({ message = 'Loading...' }: LoadingSpinnerProps) => {
   return (
     <div className="loading-container">
       <div className="spinner-container">

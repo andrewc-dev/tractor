@@ -1,6 +1,6 @@
 // Utility functions to work with localStorage instead of AsyncStorage from React Native
 
-export const saveItem = (key, value) => {
+export const saveItem = (key: string, value: any): boolean => {
   try {
     if (typeof value === 'object') {
       localStorage.setItem(key, JSON.stringify(value));
@@ -14,7 +14,7 @@ export const saveItem = (key, value) => {
   }
 };
 
-export const getItem = (key) => {
+export const getItem = (key: string): any => {
   try {
     const value = localStorage.getItem(key);
     if (!value) return null;
@@ -31,7 +31,7 @@ export const getItem = (key) => {
   }
 };
 
-export const removeItem = (key) => {
+export const removeItem = (key: string): boolean => {
   try {
     localStorage.removeItem(key);
     return true;
@@ -41,7 +41,7 @@ export const removeItem = (key) => {
   }
 };
 
-export const clearStorage = () => {
+export const clearStorage = (): boolean => {
   try {
     localStorage.clear();
     return true;

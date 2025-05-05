@@ -1,11 +1,12 @@
 import { io } from 'socket.io-client';
+import { Card, PlayerJoinedEvent, GameReadyEvent, CardPlayedEvent, ErrorEvent } from '../types';
 
 // Server URL - change this to match your server's address
 const SOCKET_URL = 'http://localhost:3000';
 
-let socket = null;
+let socket: any = null;
 
-export const initializeSocket = async () => {
+export const initializeSocket = async (): Promise<any> => {
   try {
     if (!socket) {
       socket = io(SOCKET_URL, {
@@ -21,11 +22,11 @@ export const initializeSocket = async () => {
         console.log('Socket connected!');
       });
 
-      socket.on('connect_error', (error) => {
+      socket.on('connect_error', (error: Error) => {
         console.error('Socket connection error:', error);
       });
 
-      socket.on('disconnect', (reason) => {
+      socket.on('disconnect', (reason: string) => {
         console.log('Socket disconnected:', reason);
       });
     }
@@ -37,7 +38,7 @@ export const initializeSocket = async () => {
   }
 };
 
-export const joinGameRoom = async (gameId, playerId, playerName) => {
+export const joinGameRoom = async (gameId: string, playerId: string, playerName: string): Promise<void> => {
   try {
     await initializeSocket();
     
@@ -51,45 +52,45 @@ export const joinGameRoom = async (gameId, playerId, playerName) => {
   }
 };
 
-export const playCard = (gameId, playerId, card) => {
+export const playCard = (gameId: string, playerId: string, card: Card): void => {
   if (socket && socket.connected) {
     socket.emit('playCard', { gameId, playerId, card });
   }
 };
 
-export const listenForPlayerJoined = (callback) => {
+export const listenForPlayerJoined = (callback: (data: PlayerJoinedEvent) => void): void => {
   if (socket) {
-    socket.on('playerJoined', (data) => {
+    socket.on('playerJoined', (data: PlayerJoinedEvent) => {
       callback(data);
     });
   }
 };
 
-export const listenForGameReady = (callback) => {
+export const listenForGameReady = (callback: (data: GameReadyEvent) => void): void => {
   if (socket) {
-    socket.on('gameReady', (data) => {
+    socket.on('gameReady', (data: GameReadyEvent) => {
       callback(data);
     });
   }
 };
 
-export const listenForCardPlayed = (callback) => {
+export const listenForCardPlayed = (callback: (data: CardPlayedEvent) => void): void => {
   if (socket) {
-    socket.on('cardPlayed', (data) => {
+    socket.on('cardPlayed', (data: CardPlayedEvent) => {
       callback(data);
     });
   }
 };
 
-export const listenForError = (callback) => {
+export const listenForError = (callback: (data: ErrorEvent) => void): void => {
   if (socket) {
-    socket.on('error', (data) => {
+    socket.on('error', (data: ErrorEvent) => {
       callback(data);
     });
   }
 };
 
-export const disconnectSocket = () => {
+export const disconnectSocket = (): void => {
   if (socket) {
     socket.disconnect();
     socket = null;

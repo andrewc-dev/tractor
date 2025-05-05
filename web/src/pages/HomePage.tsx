@@ -1,17 +1,39 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
-import { createGame } from '../services/api';
+import CreateGameForm from '../components/CreateGameForm';
+import { createGame, GameSettings } from '../services/api';
 import { saveItem, getItem } from '../utils/storage';
 import { v4 as uuidv4 } from 'uuid';
 import './HomePage.css';
 
 const HomePage = () => {
   const [creating, setCreating] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [gameSettings, setGameSettings] = useState<GameSettings>({
+    gameType: 'Tractor',
+    playerCount: 4,
+    roomName: ''
+  });
   const navigate = useNavigate();
+  
+  // Update game settings
+  const updateGameSettings = (field: keyof GameSettings, value: any) => {
+    setGameSettings(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Show the create game form
+  const handleShowCreateForm = () => {
+    setShowCreateForm(true);
+  };
 
   // Handler for creating a new game
-  const handleCreateGame = async () => {
+  const handleCreateGame = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
     try {
       setCreating(true);
       
@@ -23,7 +45,7 @@ const HomePage = () => {
       }
       
       // Create a new game on the server
-      const response = await createGame();
+      const response = await createGame(gameSettings);
       
       if (response.success) {
         // Navigate to the join game page
@@ -53,25 +75,34 @@ const HomePage = () => {
             <p className="subtitle">Multiplayer Card Game Experience</p>
           </div>
           
-          <div className="home-actions">
-            <Button 
-              title="Create Game" 
-              onClick={handleCreateGame} 
-              loading={creating}
-              className="home-button"
+          {!showCreateForm ? (
+            <div className="home-actions">
+              <Button 
+                title="Create Game" 
+                onClick={handleShowCreateForm} 
+                className="home-button"
+              />
+              
+              <Button 
+                title="Join Game" 
+                onClick={handleJoinGame} 
+                primary={false}
+                className="home-button"
+              />
+            </div>
+          ) : (
+            <CreateGameForm 
+              gameSettings={gameSettings}
+              updateGameSettings={updateGameSettings}
+              creating={creating}
+              onSubmit={handleCreateGame}
+              onCancel={() => setShowCreateForm(false)}
             />
-            
-            <Button 
-              title="Join Game" 
-              onClick={handleJoinGame} 
-              primary={false}
-              className="home-button"
-            />
-          </div>
+          )}
         </div>
         
         <div className="home-footer">
-          <p>© 2023 Card Game</p>
+          <p>© 2025 Tractor Card Game</p>
         </div>
       </div>
     </div>

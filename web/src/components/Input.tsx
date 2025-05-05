@@ -1,5 +1,6 @@
 import React from 'react';
 import './Input.css';
+import { InputProps } from '../types';
 
 const Input = ({
   label,
@@ -15,10 +16,10 @@ const Input = ({
   maxLength,
   disabled = false,
   autoComplete = 'off'
-}) => {
+}: InputProps) => {
   const inputId = id || name || label?.toLowerCase().replace(/\s+/g, '-');
   
-  const handleChange = (e) => {
+  const handleChange = (e: { target: { value: string } }) => {
     if (onChange) {
       onChange(e.target.value);
     }

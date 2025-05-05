@@ -28,4 +28,34 @@
 .join-button {
   width: 100%;
   margin-top: 20px;
+}
+
+/* Game Info Panel */
+.game-info-panel {
+  background-color: rgba(78, 86, 246, 0.05);
+  border: 1px solid rgba(78, 86, 246, 0.2);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.game-info-panel h3 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  color: var(--primary-color);
+}
+
+.game-info-panel p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.game-info-panel strong {
+  font-weight: 600;
+}
+
+.game-type, .player-info {
+  display: flex;
+  justify-content: space-between;
 } 

@@ -1,5 +1,6 @@
 import React from 'react';
 import './Button.css';
+import { ButtonProps } from '../types';
 
 const Button = ({ 
   title, 
@@ -9,7 +10,7 @@ const Button = ({
   disabled = false,
   primary = true,
   type = 'button'
-}) => {
+}: ButtonProps) => {
   const buttonClasses = [
     'button',
     primary ? 'button-primary' : 'button-secondary',
