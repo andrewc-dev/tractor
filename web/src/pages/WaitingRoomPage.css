@@ -1,0 +1,82 @@
+.waiting-page {
+  background-color: var(--gray-light);
+  padding-top: 20px;
+}
+
+.waiting-header {
+  position: relative;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  top: 5px;
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.back-button:hover {
+  text-decoration: underline;
+}
+
+.game-info {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.game-info h2 {
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #666;
+}
+
+.game-id {
+  font-size: 32px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  margin-bottom: 20px;
+  color: var(--text-color);
+}
+
+.share-button {
+  margin: 0 auto;
+}
+
+.waiting-spinner {
+  margin: 40px 0;
+}
+
+.player-status {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.player-count {
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: var(--text-color);
+}
+
+.player-dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.player-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  transition: background-color 0.3s ease;
+}
+
+.player-dot-active {
+  background-color: var(--primary-color);
+} 

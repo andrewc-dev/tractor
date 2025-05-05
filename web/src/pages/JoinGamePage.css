@@ -1,0 +1,31 @@
+.join-page {
+  background-color: var(--gray-light);
+  padding-top: 20px;
+}
+
+.join-header {
+  position: relative;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  top: 5px;
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.back-button:hover {
+  text-decoration: underline;
+}
+
+.join-button {
+  width: 100%;
+  margin-top: 20px;
+} 
