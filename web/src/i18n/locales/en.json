@@ -1,0 +1,27 @@
+{
+  "home": {
+    "title": "Tractor Card Game",
+    "description": "Multiplayer Card Game Experience",
+    "createGame": "Create Game",
+    "joinGame": "Join Game",
+    "copyright": "© 2025 Tractor Card Game. All rights reserved."
+  },
+  "createGame": {
+    "title": "Create New Game",
+    "gameType": "Game Type",
+    "gameTypeOptions": {
+      "tractor": "Tractor",
+      "redHeartFive": "Red Heart Five",
+      "throwingEggs": "Throwing Eggs"
+    },
+    "playerCount": "Player Count",
+    "playerCountOptions": {
+      "4": "4 Players",
+      "6": "6 Players"
+    },
+    "create": "Create",
+    "cancel": "Cancel",
+    "roomNameInputLabel": "Room Name (Optional)",
+    "roomNameInputPlaceholder": "Enter a name for your game room"
+  }
+}

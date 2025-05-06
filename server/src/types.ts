@@ -3,23 +3,37 @@
 export interface Player {
   id: string;
   name: string;
-  hand: Card[];
+}
+
+export interface PlayerWithCards extends Player {
+  cards: Card[];
 }
 
 export interface Card {
-  suit: string;
-  value: string;
+  suit: string; // Can be 'hearts', 'diamonds', 'clubs', 'spades' or empty
+  value: string; // Regular card values or 'Big Joker' or 'Small Joker'
+  isJoker?: boolean;
+  isWild?: boolean;
 }
 
 export interface GameRoom {
   id: string;
-  players: Player[];
+  playersList: string[]; // Array of player IDs
   maxPlayers: number;
-  status: 'waiting' | 'ready' | 'active' | 'finished';
-  deck: Card[];
+  status: 'waiting' | 'ready' | 'active' | 'paused' | 'finished';
   createdAt: number;
   gameType: 'Tractor' | 'Red Heart Five' | 'Throwing Eggs';
   roomName?: string;
+  instanceId?: string; // Reference to GameInstance
+}
+
+export interface GameInstance {
+  id: string;
+  deck: Card[];
+  currentPlayer: string | null;
+  roundNumber: number;
+  gameState: any; // Additional game state
+  players: PlayerWithCards[]; // Full player data with hands
 }
 
 export interface JoinGameData {
@@ -33,11 +47,3 @@ export interface PlayCardData {
   playerId: string;
   card: Card;
 }
-
-// Interface for database models
-export interface PlayerDB {
-  id: string;
-  gameId: string;
-  name: string;
-  hand: string; // JSON string of cards
-} 

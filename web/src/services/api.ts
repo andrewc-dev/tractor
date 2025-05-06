@@ -1,8 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
 import { ApiResponse, Game } from '../types';
+import { QueryOptions, useQuery } from '@tanstack/react-query';
 
 // Server URL - change this to match your server's address
-const API_URL = 'http://localhost:3000';
+export const API_URL = 'http://localhost:8000';
 
 const api: AxiosInstance = axios.create({
   baseURL: API_URL,
@@ -12,6 +13,8 @@ const api: AxiosInstance = axios.create({
     'Accept': 'application/json'
   }
 });
+
+type GamePayload = { game: Game };
 
 // Game settings interface
 export interface GameSettings {
@@ -31,7 +34,7 @@ export const createGame = async (settings: GameSettings): Promise<ApiResponse<{ 
   }
 };
 
-export const getGameStatus = async (gameId: string): Promise<ApiResponse<{ game: Game }>> => {
+export const getGameStatus = async (gameId: string): Promise<ApiResponse<GamePayload>> => {
   try {
     const response = await api.get(`/api/game/${gameId}`);
     return response.data;
@@ -41,7 +44,21 @@ export const getGameStatus = async (gameId: string): Promise<ApiResponse<{ game:
   }
 };
 
-export const joinGame = async (gameId: string, playerId: string, playerName: string): Promise<ApiResponse<{ game: Game }>> => {
+export const useGetGameStatusPolling = (gameId: string, callback?: (data: ApiResponse<GamePayload>) => void, options: QueryOptions<ApiResponse<GamePayload>> = {}) => {
+  return useQuery({
+    ...options,
+    queryKey: ['gameStatus', gameId],
+    queryFn: () => {
+      const response = getGameStatus(gameId)
+      response.then(data => callback?.(data));
+      return response;
+    },
+    enabled: !!gameId,
+    refetchInterval: 5000,
+  });
+};
+
+export const joinGame = async (gameId: string, playerId: string, playerName: string): Promise<ApiResponse<GamePayload>> => {
   try {
     const response = await api.post(`/api/game/${gameId}/join`, {
       playerId,
@@ -54,7 +71,7 @@ export const joinGame = async (gameId: string, playerId: string, playerName: str
   }
 };
 
-export const dealCards = async (gameId: string): Promise<ApiResponse<{ game: Game }>> => {
+export const dealCards = async (gameId: string): Promise<ApiResponse<GamePayload>> => {
   try {
     const response = await api.post(`/api/game/${gameId}/deal`);
     return response.data;

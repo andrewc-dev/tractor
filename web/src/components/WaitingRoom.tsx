@@ -9,7 +9,6 @@ interface WaitingRoomProps {
   gameType?: string;
   playerCount: number;
   maxPlayers: number;
-  onShareGame: () => void;
   onLeaveGame: () => void;
 }
 
@@ -19,9 +18,35 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
   gameType = 'Tractor',
   playerCount,
   maxPlayers,
-  onShareGame,
   onLeaveGame
 }) => {
+  // Handle sharing the game link
+  const handleShareGame = () => {
+    if (!gameId) return;
+    
+    const gameLink = `${window.location.origin}/join?gameId=${gameId}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'Join my card game',
+        text: `Join my card game with game ID: ${gameId}`,
+        url: gameLink
+      }).catch(err => {
+        console.error('Error sharing:', err);
+        copyToClipboard(gameLink);
+      });
+    } else {
+      copyToClipboard(gameLink);
+    }
+  };
+  
+  // Helper function to copy link to clipboard
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+      .then(() => alert('Game link copied to clipboard!'))
+      .catch(err => console.error('Failed to copy:', err));
+  };
+
   return (
     <div className="page waiting-page">
       <div className="container">
@@ -40,7 +65,7 @@ const WaitingRoom: React.FC<WaitingRoomProps> = ({
           </div>
           <Button 
             title="Share Invite" 
-            onClick={onShareGame}
+            onClick={handleShareGame}
             className="share-button"
           />
         </div>

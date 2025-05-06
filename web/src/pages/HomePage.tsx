@@ -6,6 +6,7 @@ import { createGame, GameSettings } from '../services/api';
 import { saveItem, getItem } from '../utils/storage';
 import { v4 as uuidv4 } from 'uuid';
 import './HomePage.css';
+import { t } from '../i18n';
 
 const HomePage = () => {
   const [creating, setCreating] = useState(false);
@@ -71,20 +72,20 @@ const HomePage = () => {
       <div className="container">
         <div className="home-content">
           <div className="home-header">
-            <h1>Card Game</h1>
-            <p className="subtitle">Multiplayer Card Game Experience</p>
+            <h1>{t('home.title')}</h1>
+            <p className="subtitle">{t('home.description')}</p>
           </div>
           
           {!showCreateForm ? (
             <div className="home-actions">
               <Button 
-                title="Create Game" 
+                title={t('home.createGame')} 
                 onClick={handleShowCreateForm} 
                 className="home-button"
               />
               
               <Button 
-                title="Join Game" 
+                title={t('home.joinGame')} 
                 onClick={handleJoinGame} 
                 primary={false}
                 className="home-button"
@@ -102,7 +103,7 @@ const HomePage = () => {
         </div>
         
         <div className="home-footer">
-          <p>© 2025 Tractor Card Game</p>
+            <p>{t('home.copyright')}</p>
         </div>
       </div>
     </div>

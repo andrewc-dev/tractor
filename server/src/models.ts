@@ -11,11 +11,11 @@ const sequelize = new Sequelize({
 export class Game extends Model {
   declare id: string;
   declare maxPlayers: number;
-  declare status: 'waiting' | 'ready' | 'active' | 'finished';
+  declare status: 'waiting' | 'ready' | 'active' | 'paused' | 'finished';
   declare createdAt: Date;
   declare gameType: 'Tractor' | 'Red Heart Five' | 'Throwing Eggs';
   declare roomName?: string;
-  declare deck: string; // JSON string of cards
+  declare instanceId: string | null; // Reference to GameInstance
 }
 
 // Define Player model
@@ -25,6 +25,49 @@ export class Player extends Model {
   declare name: string;
   declare hand: string; // JSON string of cards
 }
+
+// Define GameInstance model
+export class GameInstance extends Model {
+  declare id: string;
+  declare deck: string; // JSON string of cards
+  declare currentPlayer: string | null;
+  declare roundNumber: number;
+  declare gameState: string; // JSON string of additional game state
+}
+
+
+// Initialize GameInstance model
+GameInstance.init(
+  {
+    id: {
+      type: DataTypes.STRING,
+      primaryKey: true,
+    },
+    deck: {
+      type: DataTypes.TEXT, // Store JSON string
+      allowNull: false,
+      defaultValue: '[]',
+    },
+    currentPlayer: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    roundNumber: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+    },
+    gameState: {
+      type: DataTypes.TEXT, // Store JSON string
+      allowNull: false,
+      defaultValue: '{}',
+    },
+  },
+  {
+    sequelize,
+    modelName: 'GameInstance',
+  }
+);
 
 // Initialize Game model
 Game.init(
@@ -54,9 +97,13 @@ Game.init(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    deck: {
-      type: DataTypes.TEXT, // Store JSON string
-      allowNull: false,
+    instanceId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      references: {
+        model: GameInstance,
+        key: 'id',
+      },
     },
   },
   {
@@ -99,6 +146,8 @@ Player.init(
 // Define associations
 Game.hasMany(Player, { foreignKey: 'gameId' });
 Player.belongsTo(Game, { foreignKey: 'gameId' });
+Game.belongsTo(GameInstance, { foreignKey: 'instanceId' });
+GameInstance.hasOne(Game, { foreignKey: 'instanceId' });
 
 // Database initialization function
 export const initDatabase = async () => {

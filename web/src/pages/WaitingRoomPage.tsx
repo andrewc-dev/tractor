@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import Button from '../components/Button';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { getGameStatus } from '../services/api';
+import { getGameStatus, useGetGameStatusPolling } from '../services/api';
 import {
   initializeSocket,
   joinGameRoom,
@@ -42,10 +42,20 @@ const WaitingRoomPage = () => {
     roomName = ''
   } = (location.state as LocationState) || {};
   
-  const [playerCount, setPlayerCount] = useState(initialPlayerCount);
-  const [maxPlayers] = useState(initialMaxPlayers);
-  const [status, setStatus] = useState(initialStatus);
-  const [isPolling, setIsPolling] = useState(true);
+  const { data: gameStatusData, isLoading } = useGetGameStatusPolling(gameId, (response) => {
+    const game = response?.game;
+    if (game?.status === 'ready') {
+      navigate(`/game/${game.id}`, {
+        state: {
+          playerId,
+          playerName,
+          gameType: game.gameType || gameType,
+          roomName: game.roomName || roomName
+        }
+      });
+    }
+    return response;
+  });
   
   // Handle page refresh or direct access
   useEffect(() => {
@@ -56,82 +66,9 @@ const WaitingRoomPage = () => {
     }
   }, [navigate, playerId, playerName]);
   
-  // Socket connection setup
-  useEffect(() => {
-    const setupSocketConnection = async () => {
-      try {
-        await initializeSocket();
-        if (gameId) {
-          await joinGameRoom(gameId, playerId, playerName);
-        }
-        
-        listenForPlayerJoined((data) => {
-          setPlayerCount(data.playerCount);
-          setStatus(data.status);
-        });
-        
-        listenForGameReady((data) => {
-          setStatus(data.status);
-          if (data.status === 'ready' && gameId) {
-            navigate(`/game/${gameId}`, {
-              state: {
-                playerId,
-                playerName,
-                gameType,
-                roomName
-              }
-            });
-          }
-        });
-      } catch (error) {
-        console.error('Socket connection error:', error);
-      }
-    };
-    
-    if (playerId && playerName && gameId) {
-      setupSocketConnection();
-    }
-    
-    // Cleanup function
-    return () => {
-      disconnectSocket();
-    };
-  }, [gameId, playerId, playerName, navigate, gameType, roomName]);
-  
-  // Polling as backup if sockets fail
-  useEffect(() => {
-    let interval: number | undefined;
-    
-    if (isPolling && playerId && playerName && gameId) {
-      interval = window.setInterval(async () => {
-        try {
-          const response = await getGameStatus(gameId);
-          if (response.success && response.game) {
-            setPlayerCount(response.game.playerCount);
-            setStatus(response.game.status);
-            
-            if (response.game.status === 'ready') {
-              setIsPolling(false);
-              navigate(`/game/${gameId}`, {
-                state: {
-                  playerId,
-                  playerName,
-                  gameType: response.game.gameType || gameType,
-                  roomName: response.game.roomName || roomName
-                }
-              });
-            }
-          }
-        } catch (error) {
-          console.error('Error polling game status:', error);
-        }
-      }, 5000);
-    }
-    
-    return () => {
-      if (interval) window.clearInterval(interval);
-    };
-  }, [gameId, playerId, playerName, navigate, isPolling, gameType, roomName]);
+  const gameStatus = gameStatusData?.game?.status ?? initialStatus;
+  const playerCount = gameStatusData?.game?.playerCount;
+  const maxPlayers = gameStatusData?.game?.maxPlayers;
   
   // Handle sharing the game link
   const handleShareGame = () => {

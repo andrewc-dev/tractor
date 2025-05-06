@@ -2,6 +2,7 @@ import React from 'react';
 import Button from './Button';
 import Input from './Input';
 import { GameSettings } from '../services/api';
+import { t } from '../i18n';
 
 interface CreateGameFormProps {
   gameSettings: GameSettings;
@@ -20,10 +21,10 @@ const CreateGameForm: React.FC<CreateGameFormProps> = ({
 }) => {
   return (
     <div className="card-container create-form">
-      <h2>Create New Game</h2>
+      <h2>{t('createGame.title')}</h2>
       <form onSubmit={onSubmit}>
         <div className="form-group">
-          <label htmlFor="gameType">Game Type</label>
+          <label htmlFor="gameType">{t('createGame.gameType')}</label>
           <select 
             id="gameType"
             className="select-field"
@@ -38,7 +39,7 @@ const CreateGameForm: React.FC<CreateGameFormProps> = ({
         </div>
         
         <div className="form-group">
-          <label htmlFor="playerCount">Number of Players</label>
+          <label htmlFor="playerCount">{t('createGame.playerCount')}</label>
           <select 
             id="playerCount"
             className="select-field"
@@ -46,28 +47,28 @@ const CreateGameForm: React.FC<CreateGameFormProps> = ({
             onChange={(e) => updateGameSettings('playerCount', parseInt(e.target.value, 10))}
             required
           >
-            <option value="4">4 Players</option>
-            <option value="6">6 Players</option>
+            <option value="4">{t('createGame.playerCountOptions.4')}</option>
+            <option value="6">{t('createGame.playerCountOptions.6')}</option>
           </select>
         </div>
         
         <Input
-          label="Room Name (Optional)"
+          label={t('createGame.roomNameInputLabel')}
           value={gameSettings.roomName || ''}
           onChange={(value) => updateGameSettings('roomName', value)}
-          placeholder="Enter a name for your game room"
+          placeholder={t('createGame.roomNameInputPlaceholder')}
           className="form-group"
         />
         
         <div className="button-container">
           <Button
-            title="Create Game"
+            title={t('createGame.create')}
             loading={creating}
             type="submit"
             className="create-button"
           />
           <Button
-            title="Cancel"
+            title={t('createGame.cancel')}
             onClick={onCancel}
             primary={false}
             className="cancel-button"
